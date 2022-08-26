@@ -1,0 +1,1 @@
+wget https://ghproxy.com/https://github.com/ginuerzh/gost/releases/download/v2.11.3/gost-linux-amd64-2.11.3.gz

@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "string": "cpp",
+        "stdlib.h": "c",
+        "pe_loader.hpp": "c",
+        "array": "cpp",
+        "string_view": "cpp",
+        "vector": "cpp",
+        "iterator": "cpp",
+        "iosfwd": "cpp",
+        "locale": "c",
+        "filesystem": "cpp",
+        "stdio.h": "c",
+        "syscalls.h": "c"
+    }
+}
