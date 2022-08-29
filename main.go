@@ -25,7 +25,7 @@ func initialize() {
 	2.支持MSF payload generate by '-f raw'.
 	3.支持CS raw payload.
 	`)
-	flag.StringVar(&antiAV.valid, "v", "baidu.com", "签名: baidu.comk")
+	flag.StringVar(&antiAV.valid, "v", "baidu.com", "签名: baidu.com")
 	flag.StringVar(&antiAV.hostObfuscator, "ho", "wwww.baidu.com", "远程加载payload.e时,在GET请求头中替换host实现流量混淆")
 	flag.StringVar(&antiAV.arch, "arch", "386", "生成文件格式amd64,386")
 	flag.StringVar(&antiAV.output, "o", "output.exe", "输出文件名字")
