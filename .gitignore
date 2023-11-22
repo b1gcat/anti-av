@@ -1,5 +1,3 @@
+~*
 *.syso
 .DS_Store
-anti-av
-dist
-assist-kit/mailfish/mailfish

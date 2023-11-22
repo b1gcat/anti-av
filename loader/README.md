@@ -1,1 +1,0 @@
-python3 syswhispers.py --functions NtAllocateVirtualMemory -o syscalls  -a 386 --function-prefix Q360
