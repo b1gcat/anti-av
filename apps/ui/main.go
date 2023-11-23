@@ -85,6 +85,10 @@ func (c *Config) appRun() {
 				dialog.ShowError(err, win)
 				return
 			}
+
+			if reader == nil {
+				return
+			}
 			defer reader.Close()
 
 			file := reader.URI().Path()
@@ -101,9 +105,11 @@ func (c *Config) appRun() {
 		if runtime.GOOS == "windows" {
 			suffix = ".exe"
 		}
-		path, _ := os.Executable()
-		path = filepath.Join(filepath.Dir(path))
-		avDirSrv := filepath.Join(path, "anti-av")
+		runPath, _ := os.Executable()
+		runPath = filepath.Join(filepath.Dir(runPath))
+		cache := filepath.Join(runPath, "cache")
+		os.Mkdir(cache, 0755)
+		avDirSrv := filepath.Join(cache, "anti-av")
 		avDirSrvAppAv := filepath.Join(avDirSrv, "apps", "av")
 		avSrv := "git clone https://github.com/b1gcat/anti-av.git"
 		avDirOut := filepath.Join(avDirSrv, "dist")
@@ -175,11 +181,11 @@ func (c *Config) appRun() {
 			}
 		}
 		if selectEntry.Text == "远程加载" {
-			os.Rename(filepath.Join(avDirOut, "payload.raw"), filepath.Join(path, "payload.raw"))
-			logrus.Infof("输出文件: %s", filepath.Join(path, "payload.raw"))
+			os.Rename(filepath.Join(avDirOut, "payload.raw"), filepath.Join(runPath, "payload.raw"))
+			logrus.Infof("输出文件: %s", filepath.Join(runPath, "payload.raw"))
 		}
-		os.Rename(filepath.Join(avDirOut, output), filepath.Join(path, output))
-		logrus.Infof("输出文件: %s", filepath.Join(path, output))
+		os.Rename(filepath.Join(avDirOut, output), filepath.Join(runPath, output))
+		logrus.Infof("输出文件: %s", filepath.Join(runPath, output))
 		os.RemoveAll(avDirOut)
 		logrus.Info("完成")
 	}

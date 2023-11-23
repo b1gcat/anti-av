@@ -4,9 +4,11 @@
 
 ```
 go >= 1.21.4
-MingW64 - make/x86_64-w64-mingw32-gcc[g++,ar]
+MingW64 - make/x86_64-w64-mingw32-gcc[g++,gcc-ar]
 Garble - https://github.com/burrowers/garble
 ```
+
+## 预览
 
 <img width="644" alt="图片" src="https://github.com/b1gcat/anti-av/assets/15025254/f9c1174c-9120-4f19-a586-5445619d4715">
 
