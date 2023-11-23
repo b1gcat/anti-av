@@ -156,7 +156,7 @@ func (c *Config) appRun() {
 			}
 
 			logrus.Info("*** raw payload:",
-				filepath.Join(avDir, "dist", outputName.Text+".RAW"))
+				filepath.Join(avDir, "dist", outputName.Text+".raw"))
 			cmd += " -o " + outputName.Text + ".exe"
 			err = utils.Cmd("cd " + filepath.Join(avDir, "dist") + " && " +
 				fmt.Sprintf("%s -p '%v' %s",
@@ -170,6 +170,10 @@ func (c *Config) appRun() {
 				return
 			}
 		}
+		if selectEntry.Text == "远程加载" {
+			logrus.Infof("远程加载文件: %s", filepath.Join(avDir, "dist", "payload.raw"))
+		}
+		logrus.Infof("免杀文件: %s", filepath.Join(avDir, "dist", outputName.Text+".exe"))
 		logrus.Info("完成")
 	})
 

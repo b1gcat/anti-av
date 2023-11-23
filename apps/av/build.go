@@ -120,7 +120,7 @@ func (c *config) compile() error {
 		utils.CreateIcoPropertity(c.arch, resourceDir)
 		defer os.Remove("resource_windows.syso")
 	}
-	output := filepath.Join(runDir, "dist", c.output)
+	output := filepath.Join(runDir, c.output)
 	if err := utils.Cmd(
 		fmt.Sprintf("OUTFILE=%s ASM=%v OS=%s LOADER=%s MODE=%s ARCH=%s make",
 			output, false, c.os,
