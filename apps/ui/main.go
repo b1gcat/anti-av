@@ -15,6 +15,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/b1gcat/anti-av/apps/av/utils"
 	"github.com/sirupsen/logrus"
+
+	_ "github.com/lengzhao/font/autoload"
 )
 
 var (
@@ -32,7 +34,7 @@ func (c *Config) appRun() {
 
 	win := appWindow.NewWindow("Anti-Av")
 	win.SetPadded(false)
-	win.SetIcon(icon)
+	win.SetIcon(theme.LoginIcon())
 	win.Resize(fyne.NewSize(600, 300))
 	win.Show()
 	win.CenterOnScreen()
@@ -91,76 +93,78 @@ func (c *Config) appRun() {
 		fd.Show()
 	}
 
-	btn := widget.NewButtonWithIcon("生成", theme.ConfirmIcon(), func() {
+	btn := widget.NewButtonWithIcon("生成", theme.ConfirmIcon(), nil)
+	btn.OnTapped = func() {
+		btn.Disable()
+		defer btn.Enable()
+		suffix := ""
+		if runtime.GOOS == "windows" {
+			suffix = ".exe"
+		}
 		path, _ := os.Executable()
 		path = filepath.Join(filepath.Dir(path))
-		avDir := filepath.Join(path, "anti-av")
-		if _, err := os.Stat(avDir); err != nil {
-			logrus.Warnf("anti-av不存在, 下载源码:" +
-				"git clone https://github.com/b1gcat/anti-av.git " + avDir)
-			err := utils.Cmd(
-				"git clone https://github.com/b1gcat/anti-av.git " + avDir)
+		avDirSrv := filepath.Join(path, "anti-av")
+		avDirSrvAppAv := filepath.Join(avDirSrv, "apps", "av")
+		avSrv := "git clone https://github.com/b1gcat/anti-av.git"
+		avDirOut := filepath.Join(avDirSrv, "dist")
+		appAvBin := filepath.Join(avDirOut, "anti-av"+suffix)
+
+		if _, err := os.Stat(avDirSrv); err != nil {
+			logrus.Warn("anti-av不存在, 下载源码:", avSrv)
+			err := utils.Cmd(avSrv + " " + avDirSrv)
 			logrus.Warnf("Git-result:%v", err)
 			if err != nil {
 				return
 			}
 		}
-		logrus.Info("Build anti-av...")
-		suffix := ""
-		if runtime.GOOS == "windows" {
-			suffix = ".exe"
-		}
-		err := utils.Cmd("cd " + filepath.Join(avDir, "apps", "av") + " && " +
-			"go build -o " + filepath.Join(avDir, "dist", "anti-av"+suffix))
+		logrus.Info("Building ", appAvBin)
+
+		err := utils.Cmd("cd " + avDirSrvAppAv + " && " + "go build -o " + appAvBin)
 		logrus.Warnf("Build-result:%v", err)
 		if err != nil {
 			return
 		}
 
-		logrus.Info("Build Generating command...")
 		cmd := fmt.Sprintf("-v %s -ho www.%s -arch %s",
 			sign.Text, sign.Text, strings.ToLower(arch.Text))
 		if iconSelect.Text == "无图标" {
 			cmd += " -no-icon"
 		}
-		logrus.Info("Generating...")
+
+		logrus.Info("General command:", cmd)
+		logrus.Info("开始生成免杀...")
+		output := outputName.Text + ".exe"
 		switch selectEntry.Text {
 		case "进程注入":
-			cmd += " -mode inject " + "-o " + outputName.Text + ".exe"
+			cmd += " -mode inject " + "-o " + output
 			fallthrough
 		case "自解密":
-			err := utils.Cmd("cd " + filepath.Join(avDir, "dist") + " && " +
-				fmt.Sprintf("%s -p %v %s",
-					filepath.Join(avDir, "dist", "anti-av"), fBtn.Text, cmd))
+			err := utils.Cmd("cd " + avDirOut + " && " +
+				fmt.Sprintf("%s -p %v %s", appAvBin, fBtn.Text, cmd))
 			logrus.Warnf("Generating-result:%v", err)
 			if err != nil {
 				return
 			}
 		case "PE文件混淆":
-			cmd += " -l pe" + " -o " + outputName.Text + ".exe"
-			err := utils.Cmd("cd " + filepath.Join(avDir, "dist") + " && " +
-				fmt.Sprintf("%s -p %v %s",
-					filepath.Join(avDir, "dist", "anti-av"), fBtn.Text, cmd))
+			cmd += " -l pe" + " -o " + output
+			err := utils.Cmd("cd " + avDirOut + " && " +
+				fmt.Sprintf("%s -p %v %s", appAvBin, fBtn.Text, cmd))
 			logrus.Warnf("Generating-result:%v", err)
 			if err != nil {
 				return
 			}
 		case "远程加载":
 			cmd1 := cmd + " -r " + " -o payload.raw"
-			err := utils.Cmd("cd " + filepath.Join(avDir, "dist") + " && " +
-				fmt.Sprintf("%s -p %v %s",
-					filepath.Join(avDir, "dist", "anti-av"), fBtn.Text, cmd1))
+			err := utils.Cmd("cd " + avDirOut + " && " +
+				fmt.Sprintf("%s -p %v %s", appAvBin, fBtn.Text, cmd1))
 			logrus.Warnf("Generating-result:%v", err)
 			if err != nil {
 				return
 			}
 
-			logrus.Info("*** raw payload:",
-				filepath.Join(avDir, "dist", outputName.Text+".raw"))
-			cmd += " -o " + outputName.Text + ".exe"
-			err = utils.Cmd("cd " + filepath.Join(avDir, "dist") + " && " +
-				fmt.Sprintf("%s -p '%v' %s",
-					filepath.Join(avDir, "dist", "anti-av"), remoteUrl.Text, cmd))
+			cmd += " -o " + output
+			err = utils.Cmd("cd " + avDirOut + " && " +
+				fmt.Sprintf("%s -p '%v' %s", appAvBin, remoteUrl.Text, cmd))
 			logrus.Warnf("Generating-result:%v", err)
 			if err != nil {
 				return
@@ -171,11 +175,14 @@ func (c *Config) appRun() {
 			}
 		}
 		if selectEntry.Text == "远程加载" {
-			logrus.Infof("远程加载文件: %s", filepath.Join(avDir, "dist", "payload.raw"))
+			os.Rename(filepath.Join(avDirOut, "payload.raw"), filepath.Join(path, "payload.raw"))
+			logrus.Infof("输出文件: %s", filepath.Join(path, "payload.raw"))
 		}
-		logrus.Infof("免杀文件: %s", filepath.Join(avDir, "dist", outputName.Text+".exe"))
+		os.Rename(filepath.Join(avDirOut, output), filepath.Join(path, output))
+		logrus.Infof("输出文件: %s", filepath.Join(path, output))
+		os.RemoveAll(avDirOut)
 		logrus.Info("完成")
-	})
+	}
 
 	content := container.NewVBox(
 		title,
@@ -197,29 +204,10 @@ func (c *Config) appLoader() {
 	if appWindow == nil {
 		appWindow = app.NewWithID("com.b1gcat.av.ui")
 		appWindow.Settings().SetTheme(theme.LightTheme())
-		appWindow.SetIcon(icon)
+		appWindow.SetIcon(theme.ColorAchromaticIcon())
 	}
 }
 
 func (c *Config) appQuit() {
 	appWindow.Quit()
 }
-
-func init() {
-	path, _ := os.Executable()
-
-	os.Setenv("FYNE_FONT", filepath.Join(filepath.Dir(path), "resources", "AlimamaDaoLiTi.ttf"))
-	var logo []byte
-	if runtime.GOOS == "windows" {
-		logo, _ = os.ReadFile(filepath.Join(filepath.Dir(path), "resources", "logo.png"))
-	} else {
-		logo, _ = os.ReadFile(filepath.Join(filepath.Dir(path), "resources", "logo.png"))
-	}
-	icon.StaticContent = logo
-}
-
-var (
-	icon = &fyne.StaticResource{
-		StaticName: "logo.png",
-	}
-)

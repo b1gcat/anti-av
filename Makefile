@@ -2,14 +2,14 @@ Version=1.0
 ldFlag=-s -w -X main.Version=$(Version)
 Topdir=$(CURDIR)
 
-darwin:res
+# must run in darwin
+darwin:
 	cd apps/ui && GOOS=darwin go build -ldflags "$(ldFlag)" -o $(Topdir)/dist/antiAv_darwin
 
-win:res
+# must run in windows
+win:
 	cd apps/ui && GOOS=windows go build -ldflags "$(ldFlag)" -o $(Topdir)/dist/antiAv.exe
 
-linux:res
+# must run in linux
+linux:
 	cd apps/ui && GOOS=linux go build -ldflags "$(ldFlag)" -o $(Topdir)/dist/antiAv_linux
-
-res:
-	cp -rf apps/ui/resources $(Topdir)/dist/

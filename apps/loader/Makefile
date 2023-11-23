@@ -5,7 +5,7 @@ AR=i686-w64-mingw32-ar
 ifeq ($(ARCH),amd64)
 	CC=x86_64-w64-mingw32-gcc
 	CXX=x86_64-w64-mingw32-g++
-	AR=x86_64-w64-mingw32-ar
+	AR=x86_64-w64-mingw32-gcc-ar
 endif
 
 all:

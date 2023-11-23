@@ -24,7 +24,7 @@ var (
 
 func init() {
 	if runtime.GOOS == "windows" {
-		copyCmd = "copy /r"
+		copyCmd = "xcopy /S /R "
 	}
 	rand.Seed(time.Now().UnixNano())
 	runDir = filepath.Join(filepath.Dir(runDir))
@@ -122,7 +122,7 @@ func (c *config) compile() error {
 	}
 	output := filepath.Join(runDir, c.output)
 	if err := utils.Cmd(
-		fmt.Sprintf("OUTFILE=%s ASM=%v OS=%s LOADER=%s MODE=%s ARCH=%s make",
+		fmt.Sprintf("make OUTFILE=%s ASM=%v OS=%s LOADER=%s MODE=%s ARCH=%s",
 			output, false, c.os,
 			c.loader, strings.ToUpper(c.mode), strings.ToLower(c.arch))); err != nil {
 		return err
