@@ -13,11 +13,11 @@ all:
 		rm -f *.o *.a *.dll && \
 		$(CC) -Wall -c *.c $(asmFile) && \
 		$(AR) rv lib$(LOADER).a *.o &&\
-		go mod init &&\
+		go mod init example.com/m0 &&\
 		echo "replace github.com/b1gcat/anti-av/apps/av/utils => ../../../apps/av/utils" >> go.mod &&\
 		go mod tidy
 
-	go mod init
+	go mod init example.com/m1
 	echo "replace github.com/b1gcat/anti-av/dist/_tmp/$(LOADER)  => ./sc" >> go.mod
 	echo "replace github.com/b1gcat/anti-av/apps/av/utils => ../../apps/av/utils" >> go.mod
 	go mod tidy

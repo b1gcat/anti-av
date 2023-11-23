@@ -1,10 +1,12 @@
 # anti-av
 
-## 准备工作
+## 准备
 
 ```
 go >= 1.21.4
+
 MingW64 - make/x86_64-w64-mingw32-gcc[g++,gcc-ar]
+
 Garble - https://github.com/burrowers/garble
 ```
 
