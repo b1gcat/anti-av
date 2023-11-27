@@ -79,6 +79,7 @@ func (c *Config) appRun() {
 	}
 
 	fBtn := widget.NewButton("选择文件(cs或msf的raw格式bin)", nil)
+
 	fBtn.OnTapped = func() {
 		fd := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
 			if err != nil {
@@ -96,6 +97,23 @@ func (c *Config) appRun() {
 		}, win)
 		fd.Show()
 	}
+
+	win.SetOnDropped(func(p fyne.Position, u []fyne.URI) {
+		for _, file := range u {
+			path := file.Path()
+
+			fs, err := os.Stat(path)
+			if err != nil {
+				dialog.ShowError(err, win)
+				break
+			}
+			if fs.IsDir() {
+				continue
+			}
+			fBtn.SetText(path)
+			return
+		}
+	})
 
 	btn := widget.NewButtonWithIcon("生成", theme.ConfirmIcon(), nil)
 	btn.OnTapped = func() {
